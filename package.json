@@ -1,0 +1,30 @@
+{
+  "name": "nodestorefront",
+  "version": "1.0.0",
+  "description": "This app uses node commands to impact SQL databases.",
+  "main": "customerRequest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christopherbiemer/nodeStorefront.git"
+  },
+  "keywords": [
+    "node",
+    "SQL",
+    "inquirer",
+    "storefront"
+  ],
+  "author": "Christopher Biemer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/christopherbiemer/nodeStorefront/issues"
+  },
+  "homepage": "https://github.com/christopherbiemer/nodeStorefront#readme",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "inquirer": "^4.0.1",
+    "mysql": "^2.15.0",
+  }
+}
