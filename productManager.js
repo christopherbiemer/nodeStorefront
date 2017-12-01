@@ -15,6 +15,7 @@ var connect = mysql.createConnection({
 	password: "",
 	database: "bamazon"
 });
+//on connect display a welcome message and run the action inquirer
 connect.connect(function (err) {
 	if(err) throw err;
 	console.log("");
@@ -24,6 +25,7 @@ connect.connect(function (err) {
 })
 
 function actionResponse() {
+	//determine what the manager would like to do
 	inq
 	.prompt([
 	{
@@ -33,6 +35,7 @@ function actionResponse() {
 		name: "action"
 	}
 	])
+	//run the corresponding function with their action choice
 	.then(function(inquirerResponse) {
 		if (inquirerResponse.action === "View Products") {
 			productView();
@@ -50,10 +53,13 @@ function actionResponse() {
 
 }
 
+//view all of the products available on the website
 function productView() {
+	//console message/formatting
 	console.log("");
 	console.log("See below for a list of products currently available on AudioSite:")
 	console.log("");
+	//query to display each item on a new line without curly brackets
 	connect.query("SELECT * FROM products", function(err, result) {
 		if (err) throw err;
 		for (i in result) {
@@ -62,6 +68,7 @@ function productView() {
 			console.log(newProduct);
 			console.log("");
 		}
+		//ask the manager whether they would like to do anything else within the console
 		inq
 			.prompt([
 			{
@@ -71,6 +78,7 @@ function productView() {
 				name: "restart"
 			}
 			])
+			//if yes, restart the actionResponse function
 			.then(function(inqResponse) {
 				if (inqResponse.restart === "YES") {
 					actionResponse();
@@ -82,12 +90,15 @@ function productView() {
 	});
 }
 
+//view all of the products with less than five units available on the website
 function lowInvView() {
+	//console message/formatting
 	console.log("");
 	console.log("See below for a list of products with low quantities on AudioSite: ")
 	console.log("");
 	console.log("Before updating inventory, keep in mind that these products could be VINTAGE, USED or RARE".red)
 	console.log("");
+	//SQL query to display each low quantity item on a new line without curly brackets
 	connect.query("SELECT * FROM products WHERE stock_quantity < 5", function(err, result) {
 		if (err) throw err;
 		for (i in result) {
@@ -96,6 +107,7 @@ function lowInvView() {
 			console.log(newProduct);
 			console.log("");
 		}
+		//ask the manager whether they want to do anything else within the console
 		inq
 			.prompt([
 			{
@@ -105,6 +117,7 @@ function lowInvView() {
 				name: "restart"
 			}
 			])
+			//if yes, restart the actionResponse function
 			.then(function(inqResponse) {
 				if (inqResponse.restart === "YES") {
 					actionResponse();
@@ -116,7 +129,9 @@ function lowInvView() {
 	});
 }
 
+//restock units for one product at a time
 function addInventory() {
+	//prompt the user for the user ID and restock quantity
 	inq.prompt([
 		{
 			type: "input",
@@ -130,15 +145,19 @@ function addInventory() {
 		}
 	])
 	.then(function(inqResponse) {
+		//query the table for this product
 		connect.query("SELECT * FROM products WHERE item_id = '" + inqResponse.productID + "'", function (err, res) {
 			if (err) throw err;
+			//set the updated quantity (stock quantity + restock quantity)
 			var newQuantity = parseInt(inqResponse.orderQuantity) + res[0]["stock_quantity"];
-		
+			//update the SQL data
 			connect.query("UPDATE products SET stock_quantity = '" + newQuantity + "' WHERE item_id = '" + inqResponse.productID + "'", function(err, result) {
 				if (err) throw err;
+				//console message/formatting
 				console.log("");
 				console.log("Thank you for your update...");
 				console.log("");
+				//ask the manager whether they want to do anything else within the console
 				inq
 				.prompt([
 				{
@@ -149,6 +168,7 @@ function addInventory() {
 				}
 				])
 				.then(function(inqResponse) {
+					//if yes, restart the actionResponse function
 					if (inqResponse.restart === "YES") {
 						actionResponse();
 					}
@@ -161,7 +181,9 @@ function addInventory() {
 	})
 }
 
+//add a completely new product to the website
 function addProduct() {
+	//ask the user for the product data to be used for updating the SQL table
 	inq
 	.prompt([
 	{
@@ -192,17 +214,22 @@ function addProduct() {
 	}
 	])
 	.then(function(inqResponse) {
+		//set each answer to a variable for easier reference
 		var newid = parseInt(inqResponse.id);
 		var newName = inqResponse.name;
 		var newDepartment = inqResponse.department;
 		var newPrice = parseFloat(inqResponse.price);
 		var newQuantity = parseInt(inqResponse.quantity);
+		//establish the query (REMINDER: string data MUST have quotes)
 		var query = "INSERT INTO products (item_id, product_name, department_name, price, stock_quantity) VALUES (" + newid + ", '" + newName + "', '" + newDepartment + "', " + newPrice + ", " + newQuantity + ");";
+		//update the tables
 		connect.query(query, function(err, res) {
 			if (err) throw err;
+			//console message and formatting
 			console.log("");
 			console.log("You have successfully added a new item to AudioSite!");
 			console.log("");
+			//ask the manager whether they would like to do anything else within the console
 			inq
 				.prompt([
 				{
@@ -212,6 +239,7 @@ function addProduct() {
 					name: "restart"
 				}
 				])
+				//if yes, restart the actionResponse function
 				.then(function(inqResponse) {
 					if (inqResponse.restart === "YES") {
 						actionResponse();
